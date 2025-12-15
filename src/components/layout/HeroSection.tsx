@@ -17,7 +17,7 @@ export function HeroSection({ isResultView }: HeroSectionProps) {
 
   return (
     <>
-      <section className={`relative shrink-0 transition-all duration-500 ${isResultView ? 'py-2' : 'space-y-6 py-6 sm:py-10'}`}>
+      <section className={`relative shrink-0 transition-all duration-500 ${isResultView ? 'py-1' : 'space-y-6 py-6 sm:py-10'}`}>
         <div className="flex justify-center sm:hidden">
           <button
             type="button"
@@ -33,7 +33,7 @@ export function HeroSection({ isResultView }: HeroSectionProps) {
           </button>
         </div>
 
-        <div className={`mx-auto text-center sm:text-left ${isResultView ? 'text-center' : ''}`}>
+        <div className={`mx-auto text-center sm:text-left ${isResultView ? 'text-center mb-8' : ''}`}>
           <h1 className={`font-bold tracking-tight text-white transition-all ${isResultView ? 'text-xl sm:text-2xl' : 'text-3xl sm:text-5xl'}`}>
             Visualize o móvel reestofado{' '}
             <span className="bg-linear-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">

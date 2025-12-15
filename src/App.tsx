@@ -100,7 +100,7 @@ function App() {
   if (!hasApiKey) return <ApiKeyGate errorMessage={errorMsg} onConnect={connectKey} />;
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-50 selection:bg-indigo-500/30 flex flex-col">
+    <div className="h-screen w-full bg-slate-950 text-slate-50 selection:bg-indigo-500/30 flex flex-col overflow-hidden">
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[120px]" />
@@ -108,25 +108,36 @@ function App() {
 
       <AppHeader />
 
-      <main className="flex-1 flex flex-col relative max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 gap-8 pb-32 md:pb-8">
-        <HeroSection onPrimaryAction={scrollToUploadSection} isResultView={showResultView} />
-
-        {showResultView ? (
-          <ResultView
-            originalImage={furniturePreviewUrl}
-            resultImage={resultImageUrl}
-            onReset={handleReset}
-          />
-        ) : (
-          <UploadSection
-            sections={uploadSections}
-            canGenerate={canGenerate}
-            isGenerating={isGenerating}
-            status={status}
-            errorMessage={errorMsg}
-            onGenerate={handleGenerate}
-          />
-        )}
+      <main
+        className={`
+          flex-1 flex flex-col relative w-full max-w-7xl mx-auto px-4
+          ${showResultView
+            ? 'min-h-0 overflow-hidden py-4'
+            : 'overflow-y-auto py-4 pb-32'
+          }
+        `}
+      >
+        <div className="shrink-0">
+          <HeroSection onPrimaryAction={scrollToUploadSection} isResultView={showResultView} />
+        </div>
+        <div className={`flex-1 flex flex-col w-full justify-center ${showResultView ? 'min-h-0' : ''}`}>
+          {showResultView ? (
+            <ResultView
+              originalImage={furniturePreviewUrl}
+              resultImage={resultImageUrl}
+              onReset={handleReset}
+            />
+          ) : (
+            <UploadSection
+              sections={uploadSections}
+              canGenerate={canGenerate}
+              isGenerating={isGenerating}
+              status={status}
+              errorMessage={errorMsg}
+              onGenerate={handleGenerate}
+            />
+          )}
+        </div>
       </main>
 
       <MobileGeneratePrompt

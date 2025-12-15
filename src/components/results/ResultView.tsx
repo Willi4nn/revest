@@ -16,10 +16,10 @@ export function ResultView({ originalImage, resultImage, onReset }: ResultViewPr
   const closeZoom = useCallback(() => setZoomImage(null), []);
 
   return (
-    <div className="w-full animate-fade-in pb-10">
-      <article className="mx-auto flex max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 shadow-2xl backdrop-blur-sm">
+    <div className="w-full h-full animate-fade-in flex flex-col pb-2">
+      <article className="mx-auto flex flex-col w-full max-w-6xl h-full overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 shadow-2xl backdrop-blur-sm">
 
-        <header className="relative z-20 flex flex-col gap-4 border-b border-white/5 bg-white/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <header className="shrink-0 relative z-20 flex flex-col gap-4 border-b border-white/5 bg-white/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="relative flex size-2">
@@ -41,7 +41,7 @@ export function ResultView({ originalImage, resultImage, onReset }: ResultViewPr
           </a>
         </header>
 
-        <div className="group relative z-10 grid place-items-center bg-black overflow-hidden">
+        <div className="group relative z-10 flex-1 min-h-0 w-full bg-black overflow-hidden flex items-center justify-center">
 
           <div
             aria-hidden="true"
@@ -50,10 +50,10 @@ export function ResultView({ originalImage, resultImage, onReset }: ResultViewPr
           />
           <div className="absolute inset-0 bg-black/40" />
 
-          <div className="relative h-[50vh] w-full max-w-5xl shadow-2xl sm:h-[70vh]">
+          <div className="relative w-full h-full shadow-2xl">
             <ReactCompareSlider
-              itemOne={<ReactCompareSliderImage src={originalImage} alt="Original" />}
-              itemTwo={<ReactCompareSliderImage src={resultImage} alt="Resultado" />}
+              itemOne={<ReactCompareSliderImage src={originalImage} alt="Original" style={{ objectFit: 'cover', height: '100%', width: '100%' }} />}
+              itemTwo={<ReactCompareSliderImage src={resultImage} alt="Resultado" style={{ objectFit: 'cover', height: '100%', width: '100%' }} />}
               className="h-full w-full"
               style={{ width: '100%', height: '100%' }}
             />
@@ -70,10 +70,10 @@ export function ResultView({ originalImage, resultImage, onReset }: ResultViewPr
             </span>
           </div>
 
-          <div className="absolute bottom-4 right-4 z-20 opacity-0 transition-all duration-300 group-hover:opacity-100 focus-within:opacity-100">
+          <div className="absolute bottom-4 right-4 z-20 transition-all">
             <button
               onClick={() => openZoom(resultImage)}
-              className="rounded-full border border-white/20 bg-black/50 p-3 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white hover:text-slate-900 active:scale-95 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white cursor-pointer"
+              className="rounded-full border border-white/20 bg-black/50 p-3 text-white backdrop-blur-md transition-all hover:scale-110 hover:bg-white hover:text-slate-900 active:scale-95 cursor-pointer"
               aria-label="Expandir imagem"
               title="Ver em tela cheia"
             >
@@ -82,7 +82,7 @@ export function ResultView({ originalImage, resultImage, onReset }: ResultViewPr
           </div>
         </div>
 
-        <footer className="relative z-20 flex justify-center border-t border-white/5 bg-white/5 p-4">
+        <footer className="shrink-0 relative z-20 flex justify-center border-t border-white/5 bg-white/5 p-4">
           <button
             onClick={onReset}
             className="flex items-center gap-2 rounded-lg border border-transparent px-5 py-2 text-sm font-medium text-slate-400 transition-colors hover:border-white/10 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 cursor-pointer"

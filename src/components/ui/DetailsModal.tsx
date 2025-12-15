@@ -31,7 +31,7 @@ export function DetailsModal({ isOpen, onClose }: DetailsModalProps) {
 
         <div className="space-y-4 text-xs leading-relaxed text-slate-300">
           <p>
-            O Revest utiliza visão computacional avançada para retexturizar móveis preservando a geometria 3D e a iluminação original.
+            O Revest aplica inteligência artificial para trocar o tecido dos seus móveis com realismo absoluto, respeitando fielmente cada curva, sombra e detalhe da iluminação original.
           </p>
           <ul className="space-y-2">
             {[
