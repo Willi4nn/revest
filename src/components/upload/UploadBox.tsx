@@ -1,5 +1,6 @@
 import { RefreshCcw, Upload, X } from 'lucide-react';
-import { type ChangeEvent, type KeyboardEvent, type MouseEvent, useCallback, useRef, useState } from 'react';
+import { type ChangeEvent, type DragEvent, type KeyboardEvent, type MouseEvent, useCallback, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 import { cn } from '../../lib/utils';
 import type { UploadedImage } from '../../types';
 import { FullscreenImageModal } from '../ui/FullscreenImageModal';
@@ -25,78 +26,116 @@ export function UploadBox({
 }: UploadBoxProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const extractImageDimensions = useCallback((dataUrl: string) => {
+  const [isDragging, setIsDragging] = useState(false);
 
+  const extractImageDimensions = useCallback((dataUrl: string) => {
     return new Promise<{ width: number; height: number }>((resolve, reject) => {
       const imageElement = new Image();
-
-      imageElement.onload = () => {
-        resolve({ width: imageElement.naturalWidth, height: imageElement.naturalHeight });
-      };
-
+      imageElement.onload = () => resolve({ width: imageElement.naturalWidth, height: imageElement.naturalHeight });
       imageElement.onerror = () => reject(new Error('Could not read image dimensions.'));
       imageElement.src = dataUrl;
     });
   }, []);
 
+  const processFile = useCallback((file: File) => {
+    setShowPreviewModal(false);
+    const reader = new FileReader();
 
+    reader.onloadend = async () => {
+      const base64Result = reader.result as string | null;
+      if (!base64Result) return;
 
-  const handleFileChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
+      const previewUrl = URL.createObjectURL(file);
 
-      if (!file) return;
+      try {
+        const dimensions = await extractImageDimensions(base64Result);
+        onImageSelect({
+          id: crypto.randomUUID(),
+          file,
+          previewUrl,
+          base64: base64Result,
+          width: dimensions.width,
+          height: dimensions.height
+        });
+      } catch (error) {
+        console.error('Dimension extraction failed', error);
+        onImageSelect({
+          id: crypto.randomUUID(),
+          file,
+          previewUrl,
+          base64: base64Result,
+          width: 0,
+          height: 0
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  }, [extractImageDimensions, onImageSelect]);
 
-      setShowPreviewModal(false);
+  const handleFileChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) processFile(file);
+  }, [processFile]);
 
-      const reader = new FileReader();
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
 
-      reader.onloadend = async () => {
-        const base64Result = reader.result as string | null;
+  const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
 
-        if (!base64Result) return;
+  const handleDrop = useCallback(async (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
 
-        const previewUrl = URL.createObjectURL(file);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith('image/')) {
+        processFile(file);
+      }
+      return;
+    }
 
-        try {
-          const dimensions = await extractImageDimensions(base64Result);
+    const imageUrl = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
 
-          onImageSelect({
-            file,
-            previewUrl,
-            base64: base64Result,
-            width: dimensions.width,
-            height: dimensions.height
-          });
+    if (imageUrl) {
+      try {
+        const response = await fetch(imageUrl, { mode: 'cors' });
 
-        } catch (error) {
-          console.error('Dimension extraction failed', error);
+        if (!response.ok) throw new Error('Network response was not ok');
 
-          onImageSelect({
-            file,
-            previewUrl,
-            base64: base64Result,
-            width: 0,
-            height: 0
-          });
+        const blob = await response.blob();
+
+        if (!blob.type.startsWith('image/')) {
+          toast.error("O link arrastado não parece ser uma imagem válida."
+          );
+          return;
         }
-      };
-      reader.readAsDataURL(file);
-    },
-    [extractImageDimensions, onImageSelect]
-  );
+
+        const file = new File([blob], "web-image.jpg", { type: blob.type });
+        processFile(file);
+
+      } catch (error) {
+        console.error("Error while processing web image:", error);
+        toast.error("A segurança do site original (CORS) impediu o acesso. Baixe a imagem e tente novamente."
+        );
+      }
+    }
+  }, [processFile]);
 
   const triggerClick = () => fileInputRef.current?.click();
-  const handleKeyDown = (e: KeyboardEvent) => {
 
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-
-      if (!image) {
-        triggerClick();
-      } else {
-        setShowPreviewModal(true);
-      }
+      if (!image) triggerClick();
+      else setShowPreviewModal(true);
     }
   };
 
@@ -124,11 +163,16 @@ export function UploadBox({
         role="button"
         tabIndex={0}
         aria-label={image ? `Visualizar imagem de ${label}` : `Carregar imagem para ${label}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         className={cn(
           "relative flex flex-1 min-h-80 w-full flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
-          image
-            ? "border-slate-700 bg-slate-900"
-            : "cursor-pointer border-slate-700 bg-slate-900/50 hover:border-indigo-500/50 hover:bg-slate-800/50"
+          isDragging
+            ? "border-indigo-400 bg-indigo-500/20 scale-[1.02]"
+            : image
+              ? "border-slate-700 bg-slate-900"
+              : "cursor-pointer border-slate-700 bg-slate-900/50 hover:border-indigo-500/50 hover:bg-slate-800/50"
         )}
         onClick={image ? () => setShowPreviewModal(true) : triggerClick}
         onKeyDown={handleKeyDown}
@@ -174,16 +218,18 @@ export function UploadBox({
             </div>
 
             <div className="absolute bottom-3 left-3 max-w-[90%] truncate rounded-md border border-white/10 bg-slate-950/60 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
-              {image.file.name}
+              {image.file?.name || "Imagem da Web"}
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center gap-3 p-4 text-center">
-            <div className="rounded-full bg-slate-800 p-3 text-slate-400 transition-colors group-hover:bg-indigo-500/10 group-hover:text-indigo-400">
+          <div className="flex flex-col items-center gap-3 p-4 text-center pointer-events-none">
+            <div className={`rounded-full p-3 transition-colors ${isDragging ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400'}`}>
               <Upload size={24} aria-hidden="true" />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-300">Clique para enviar</p>
+              <p className="text-xs font-medium text-slate-300">
+                {isDragging ? 'Solte a imagem aqui' : 'Clique ou arraste a imagem'}
+              </p>
               <p className="text-xs text-slate-500">{subLabel}</p>
             </div>
           </div>
@@ -194,7 +240,7 @@ export function UploadBox({
         isOpen={Boolean(showPreviewModal && image)}
         onClose={() => setShowPreviewModal(false)}
         imageSrc={image?.previewUrl ?? ''}
-        alt={image?.file.name}
+        alt={image?.file?.name || 'Preview'}
       />
     </div>
   );

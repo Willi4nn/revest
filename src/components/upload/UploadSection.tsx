@@ -52,8 +52,6 @@ export function UploadSection({
         ))}
       </div>
 
-
-
       <div className="hidden sm:flex justify-end">
         <GenerateButton
           onClick={onGenerate}

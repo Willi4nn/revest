@@ -1,7 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
+import { get, set } from 'idb-keyval';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Flip, ToastContainer } from 'react-toastify';
 import { ApiKeyGate } from './components/auth/ApiKeyGate';
 import { AppHeader } from './components/layout/AppHeader';
 import { HeroSection } from './components/layout/HeroSection';
+import { HistoryDrawer } from './components/results/HistoryDrawer';
 import { ResultView } from './components/results/ResultView';
 import { Spinner } from './components/ui/Spinner';
 import { MobileGeneratePrompt } from './components/upload/MobileGeneratePrompt';
@@ -10,6 +13,13 @@ import { useGeminiKey } from './hooks/useGeminiKey';
 import { generateReupholstery } from './services/gemini.service';
 import { ProcessingState, type UploadedImage, type UploadSectionItem } from './types';
 
+export interface HistoryItem {
+  id: string;
+  timestamp: number;
+  originalImage: string;
+  resultImage: string;
+}
+
 function App() {
   const { hasApiKey, isChecking, errorMsg, setErrorMsg, connectKey } = useGeminiKey();
 
@@ -17,6 +27,24 @@ function App() {
   const [textureImage, setTextureImage] = useState<UploadedImage | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<ProcessingState>(ProcessingState.IDLE);
+
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    get('revest_history')
+      .then((val) => {
+        if (val) setHistory(val);
+      })
+      .catch((err) => console.error('Error loading history:', err));
+  }, []);
+
+  useEffect(() => {
+    if (history.length > 0) {
+      set('revest_history', history)
+        .catch((err) => console.error('Error saving history:', err));
+    }
+  }, [history]);
 
   const handleFurnitureSelect = useCallback((image: UploadedImage) => setFurnitureImage(image), []);
   const handleTextureSelect = useCallback((image: UploadedImage) => setTextureImage(image), []);
@@ -30,7 +58,6 @@ function App() {
     setErrorMsg(null);
 
     try {
-
       const generatedImage = await generateReupholstery(
         furnitureImage.base64,
         textureImage.base64,
@@ -40,12 +67,25 @@ function App() {
 
       setResultUrl(generatedImage);
       setStatus(ProcessingState.SUCCESS);
+
+      const newItem: HistoryItem = {
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        originalImage: furnitureImage.base64,
+        resultImage: generatedImage,
+      };
+
+      setHistory((prev) => {
+        const newHistory = [newItem, ...prev].slice(0, 20);
+        set('revest_history', newHistory).catch(console.error);
+        return newHistory;
+      });
+
     } catch (error) {
       console.error('Generation failed', error);
       setStatus(ProcessingState.ERROR);
 
       const message = error instanceof Error ? error.message : 'Algo deu errado durante a geração.';
-
       if (message.includes('PERMISSION_DENIED') || message.includes('403')) {
         setErrorMsg("Erro de permissão. Verifique o faturamento no Google Cloud.");
       } else {
@@ -53,6 +93,33 @@ function App() {
       }
     }
   }, [furnitureImage, textureImage, setErrorMsg]);
+
+  const handleSelectHistoryItem = useCallback((item: HistoryItem) => {
+    const restoredFurniture: UploadedImage = {
+      id: 'restored-history',
+      previewUrl: item.originalImage,
+      base64: item.originalImage,
+      width: 0,
+      height: 0,
+      file: null as unknown as File
+    };
+
+    setFurnitureImage(restoredFurniture);
+    setTextureImage(null);
+    setResultUrl(item.resultImage);
+    setStatus(ProcessingState.SUCCESS);
+    setIsHistoryOpen(false);
+  }, []);
+
+  const handleDeleteHistoryItem = useCallback((id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setHistory((prev) => {
+      const newHistory = prev.filter((item) => item.id !== id);
+
+      set('revest_history', newHistory).catch(console.error);
+      return newHistory;
+    });
+  }, []);
 
   const handleReset = useCallback(() => {
     setFurnitureImage(null);
@@ -106,17 +173,9 @@ function App() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[120px]" />
       </div>
 
-      <AppHeader />
+      <AppHeader onOpenHistory={() => setIsHistoryOpen(true)} />
 
-      <main
-        className={`
-          flex-1 flex flex-col relative w-full max-w-7xl mx-auto px-4
-          ${showResultView
-            ? 'min-h-0 overflow-hidden py-4'
-            : 'overflow-y-auto py-4 pb-32'
-          }
-        `}
-      >
+      <main className={`flex-1 flex flex-col relative w-full max-w-7xl mx-auto px-4 ${showResultView ? 'min-h-0 overflow-hidden py-4' : 'overflow-y-auto py-4 pb-32'}`}>
         <div className="shrink-0">
           <HeroSection onPrimaryAction={scrollToUploadSection} isResultView={showResultView} />
         </div>
@@ -140,11 +199,33 @@ function App() {
         </div>
       </main>
 
+      <HistoryDrawer
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        items={history}
+        onSelect={handleSelectHistoryItem}
+        onDelete={handleDeleteHistoryItem}
+      />
+
       <MobileGeneratePrompt
         visible={!showResultView}
         canGenerate={canGenerate}
         isGenerating={isGenerating}
         onGenerate={handleGenerate}
+      />
+
+      <ToastContainer
+        position="top-center"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        transition={Flip}
       />
     </div>
   );

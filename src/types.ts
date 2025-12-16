@@ -4,7 +4,8 @@ export interface ImageDimensions {
 }
 
 export interface UploadedImage {
-  file: File;
+  id: string;
+  file: File | null;
   previewUrl: string;
   base64: string;
   width: number;
@@ -20,6 +21,13 @@ export interface UploadSectionItem {
   image: UploadedImage | null;
   onImageSelect: (image: UploadedImage) => void;
   onClear: () => void;
+}
+
+export interface HistoryItem {
+  id: string;
+  timestamp: number;
+  originalImage: string;
+  resultImage: string;
 }
 
 export type ProcessingState =
