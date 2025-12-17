@@ -23,7 +23,7 @@ export function MobileGeneratePrompt({
             onClick={onGenerate}
             disabled={!canGenerate || isGenerating}
             isGenerating={isGenerating}
-            className="w-full rounded-xl py-3.5 text-sm font-bold shadow-lg active:scale-[0.98] transition-transform"
+            className="w-full"
           />
         </div>
       </div>

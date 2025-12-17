@@ -36,7 +36,7 @@ export function HeroSection({ isResultView }: HeroSectionProps) {
         <div className={`mx-auto text-center sm:text-left ${isResultView ? 'text-center mb-8' : ''}`}>
           <h1 className={`font-bold tracking-tight text-white transition-all ${isResultView ? 'text-xl sm:text-2xl' : 'text-3xl sm:text-5xl'}`}>
             Visualize o móvel reestofado{' '}
-            <span className="bg-linear-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-indigo-400 via-purple-400 to-fuchsia-400 bg-clip-text text-transparent tracking-tight">
               sem ajustes manuais
             </span>
           </h1>
@@ -49,7 +49,7 @@ export function HeroSection({ isResultView }: HeroSectionProps) {
 
               <div className="hidden gap-3 sm:grid sm:grid-cols-3">
                 {FEATURE_HIGHLIGHTS.map((item, i) => (
-                  <div key={i} className="rounded-xl border border-white/5 bg-white/5 p-4 text-xs text-slate-300 transition-colors hover:bg-white/10">
+                  <div key={i} className="rounded-xl border border-white/5 bg-white/5 p-4 text-md text-slate-300 transition-colors hover:bg-white/10">
                     {item}
                   </div>
                 ))}

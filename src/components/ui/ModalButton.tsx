@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '../../lib/cn';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -10,10 +11,10 @@ export default function ModalButton({ children, className = '', ...props }: Butt
     <button
       type="button"
       {...props}
-      className={
-        'rounded-xl p-3 text-white transition hover:bg-white/10 cursor-pointer ' +
-        (className || '')
-      }
+      className={cn(
+        "rounded-xl p-3 text-white transition hover:bg-white/10 cursor-pointer",
+        className
+      )}
     >
       {children}
     </button>

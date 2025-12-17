@@ -23,22 +23,31 @@ export function UploadSection({
   const showError = status === ProcessingState.ERROR && Boolean(errorMessage);
 
   return (
-    <section id="upload-section" className="flex-1 flex flex-col gap-4">
+    <section id="upload-section" className="flex flex-col gap-4 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+
       {showError && errorMessage && (
-        <div className="shrink-0 w-full rounded-xl border border-red-500/20 bg-red-500/5 text-red-200 p-3 flex gap-2 animate-fade-in" role="alert">
-          <AlertCircle size={16} className="shrink-0 text-red-400" />
-          <div>
-            <p className="font-semibold text-red-100 text-xs">Falha na geração</p>
-            <p className="text-[10px] text-red-300/80 mt-0.5">{errorMessage}</p>
+        <div className="alert-error" role="alert">
+          <AlertCircle className="shrink-0 text-red-400 mt-0.5" size={18} />
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-red-100 text-sm">Falha na geração</p>
+            <p className="text-xs text-red-200/90 leading-relaxed mt-1 wrap-break-word">
+              {errorMessage}
+            </p>
+            <button
+              onClick={onGenerate}
+              className="mt-2 text-[10px] font-bold uppercase tracking-wider text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+            >
+              Tentar novamente agora
+            </button>
           </div>
         </div>
       )}
 
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:flex-1 lg:min-h-0">
         {sections.map((section) => (
           <article
             key={section.id}
-            className="bg-slate-900/40 rounded-2xl p-3 border border-white/5 hover:border-white/10 flex flex-col h-full"
+            className="card hover:border-white/10 flex flex-col min-h-0 overflow-hidden"
           >
             <UploadBox
               id={section.id}
@@ -52,7 +61,9 @@ export function UploadSection({
         ))}
       </div>
 
-      <div className="hidden sm:flex justify-end">
+      <div className="h-20 sm:hidden" aria-hidden="true" />
+
+      <div className="shrink-0 hidden sm:flex justify-end pt-2">
         <GenerateButton
           onClick={onGenerate}
           disabled={!canGenerate || isGenerating}

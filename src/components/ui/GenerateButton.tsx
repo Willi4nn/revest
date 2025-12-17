@@ -1,5 +1,5 @@
 import { Loader2, Wand2 } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import { cn } from '../../lib/cn';
 
 interface GenerateButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isGenerating?: boolean;

@@ -1,13 +1,16 @@
-import { History } from 'lucide-react';
+import { History, Key } from 'lucide-react';
 import revestIcon from '../../assets/revest-icon.png';
+import { NavButton } from './NavButton';
 
 interface AppHeaderProps {
   onOpenHistory: () => void;
+  onChangeApiKey: () => void;
+  onOpenConfirmModal: () => void;
 }
 
-export function AppHeader({ onOpenHistory }: AppHeaderProps) {
+export function AppHeader({ onOpenHistory, onOpenConfirmModal }: AppHeaderProps) {
   return (
-    <header className="sticky top-0 z-40 shrink-0 w-full border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
+    <header className="header">
       <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <a
           href="/"
@@ -17,13 +20,23 @@ export function AppHeader({ onOpenHistory }: AppHeaderProps) {
           <span className="text-xl font-semibold tracking-tight text-white">Revest</span>
         </a>
 
-        <button
-          onClick={onOpenHistory}
-          className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/5 px-3 py-1.5 text-sm text-slate-300 transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
-        >
-          <History size={16} />
-          <span className="hidden sm:inline">Histórico</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <NavButton
+            onClick={onOpenHistory}
+            icon={<History size={16} />}
+          >
+            <span className="hidden sm:inline">Histórico</span>
+          </NavButton>
+
+          <NavButton
+            onClick={onOpenConfirmModal}
+            variant="primary"
+            icon={<Key size={16} />}
+          >
+            <span className="hidden sm:inline">Trocar API Key</span>
+            <span className="sm:hidden">API Key</span>
+          </NavButton>
+        </div>
       </nav>
     </header>
   );

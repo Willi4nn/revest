@@ -22,7 +22,7 @@ export function FullscreenImageModal({
       <div className="absolute right-0 top-0 z-50 p-6">
         <ModalButton
           onClick={onClose}
-          className="rounded-full border border-white/10 bg-white/5 shadow-lg backdrop-blur-md hover:bg-red-500 hover:border-red-500 hover:rotate-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="rounded-full border border-white/10 backdrop-blur-md hover:bg-red-500"
           aria-label="Fechar visualização"
         >
           <X size={24} />

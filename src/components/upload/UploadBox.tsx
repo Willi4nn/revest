@@ -1,7 +1,8 @@
 import { RefreshCcw, Upload, X } from 'lucide-react';
 import { type ChangeEvent, type DragEvent, type KeyboardEvent, type MouseEvent, useCallback, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-import { cn } from '../../lib/utils';
+import { cn } from '../../lib/cn';
+import { convertToPng } from '../../lib/convert-to-png';
 import type { UploadedImage } from '../../types';
 import { FullscreenImageModal } from '../ui/FullscreenImageModal';
 
@@ -37,8 +38,10 @@ export function UploadBox({
     });
   }, []);
 
-  const processFile = useCallback((file: File) => {
+  const processFile = useCallback(async (originalFile: File) => {
     setShowPreviewModal(false);
+
+    const file = await convertToPng(originalFile);
     const reader = new FileReader();
 
     reader.onloadend = async () => {
@@ -107,9 +110,7 @@ export function UploadBox({
     if (imageUrl) {
       try {
         const response = await fetch(imageUrl, { mode: 'cors' });
-
         if (!response.ok) throw new Error('Network response was not ok');
-
         const blob = await response.blob();
 
         if (!blob.type.startsWith('image/')) {
@@ -120,7 +121,6 @@ export function UploadBox({
 
         const file = new File([blob], "web-image.jpg", { type: blob.type });
         processFile(file);
-
       } catch (error) {
         console.error("Error while processing web image:", error);
         toast.error("A segurança do site original (CORS) impediu o acesso. Baixe a imagem e tente novamente."
@@ -147,7 +147,7 @@ export function UploadBox({
   };
 
   return (
-    <div className="group flex h-full w-full flex-col gap-3">
+    <div className="group w-full h-full flex flex-col gap-3">
       <div className="flex shrink-0 items-center justify-between">
         <h3 className="flex items-center gap-2 text-xs font-medium text-slate-200">
           {label}
@@ -201,7 +201,7 @@ export function UploadBox({
             <div className="absolute right-4 top-4 z-10 flex gap-2 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
               <button
                 onClick={(e) => { e.stopPropagation(); triggerClick(); }}
-                className="rounded-full bg-slate-900/80 p-2 text-white shadow-sm backdrop-blur-sm transition-all hover:scale-110 hover:bg-indigo-600 focus-visible:ring-2 focus-visible:ring-white active:scale-95 cursor-pointer"
+                className="btn btn-default p-2 rounded-full shadow-sm backdrop-blur-sm hover:scale-110 focus-visible:ring-white active:scale-95"
                 title="Trocar imagem"
                 aria-label="Trocar imagem"
               >
@@ -209,7 +209,7 @@ export function UploadBox({
               </button>
               <button
                 onClick={handleClear}
-                className="rounded-full bg-slate-900/80 p-2 text-white shadow-sm backdrop-blur-sm transition-all hover:scale-110 hover:bg-red-500 focus-visible:ring-2 focus-visible:ring-white active:scale-95 cursor-pointer"
+                className="btn btn-default p-2 rounded-full shadow-sm backdrop-blur-sm hover:scale-110 hover:bg-red-500 focus-visible:ring-white active:scale-95"
                 title="Remover imagem"
                 aria-label="Remover imagem"
               >
@@ -223,7 +223,10 @@ export function UploadBox({
           </>
         ) : (
           <div className="flex flex-col items-center gap-3 p-4 text-center pointer-events-none">
-            <div className={`rounded-full p-3 transition-colors ${isDragging ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400'}`}>
+            <div className={cn(
+              "rounded-full p-3 transition-colors",
+              isDragging ? "bg-indigo-500 text-white" : "bg-slate-800 text-slate-400 group-hover:bg-indigo-500/10 group-hover:text-indigo-400"
+            )}>
               <Upload size={24} aria-hidden="true" />
             </div>
             <div className="space-y-1">

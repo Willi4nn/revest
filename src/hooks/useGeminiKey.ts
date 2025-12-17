@@ -55,5 +55,19 @@ export function useGeminiKey() {
     }
   }, []);
 
-  return { hasApiKey, isChecking, errorMsg, setErrorMsg, connectKey };
+  const removeKey = useCallback(() => {
+    localStorage.removeItem('gemini_api_key');
+    setHasApiKey(false);
+    setErrorMsg(null);
+    setIsChecking(false);
+  }, []);
+
+  return {
+    hasApiKey,
+    isChecking,
+    errorMsg,
+    setErrorMsg,
+    connectKey,
+    removeKey,
+  };
 }
