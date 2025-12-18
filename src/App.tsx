@@ -144,12 +144,12 @@ function App() {
         onOpenConfirmModal={() => setIsModalOpen(true)}
       />
 
-      <main className="flex-1 flex flex-col relative w-full max-w-7xl mx-auto px-4 py-4 overflow-y-auto lg:overflow-hidden">
+      <main className="flex-1 flex flex-col relative w-full max-w-7xl mx-auto px-4 py-4 overflow-y-auto">
         <div className="shrink-0">
           <HeroSection onPrimaryAction={scrollToUploadSection} isResultView={showResultView} />
         </div>
 
-        <div className="flex-1 min-h-0 flex flex-col w-full justify-start lg:justify-center">
+        <div className="flex-1 min-h-0 flex flex-col w-full justify-start mt-4">
           {showResultView ? (
             <ResultView
               originalImage={furniturePreviewUrl}

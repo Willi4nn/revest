@@ -17,7 +17,7 @@ export function ResultView({ originalImage, resultImage, onReset }: ResultViewPr
 
   return (
     <div className="w-full min-h-fit animate-fade-in flex flex-col pb-6">
-      <article className="mx-auto max-w-7xl flex flex-col w-full min-h-[500px] lg:h-full overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 shadow-2xl backdrop-blur-sm">
+      <article className="mx-auto max-w-7xl flex flex-col w-full min-h-125 lg:h-full overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 shadow-2xl backdrop-blur-sm">
 
         <header className="shrink-0 relative z-20 flex flex-col gap-4 border-b border-white/5 bg-white/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
