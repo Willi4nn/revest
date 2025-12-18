@@ -201,7 +201,7 @@ export function UploadBox({
             <div className="absolute right-4 top-4 z-10 flex gap-2 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
               <button
                 onClick={(e) => { e.stopPropagation(); triggerClick(); }}
-                className="btn btn-default p-2 rounded-full shadow-sm backdrop-blur-sm hover:scale-110 focus-visible:ring-white active:scale-95"
+                className="btn btn-default p-2 rounded-full shadow-sm bg-slate-800 hover:scale-110 active:scale-95"
                 title="Trocar imagem"
                 aria-label="Trocar imagem"
               >
@@ -209,7 +209,7 @@ export function UploadBox({
               </button>
               <button
                 onClick={handleClear}
-                className="btn btn-default p-2 rounded-full shadow-sm backdrop-blur-sm hover:scale-110 hover:bg-red-500 focus-visible:ring-white active:scale-95"
+                className="btn btn-default p-2 rounded-full shadow-sm bg-slate-800 hover:scale-110 hover:bg-red-500 active:scale-95"
                 title="Remover imagem"
                 aria-label="Remover imagem"
               >
